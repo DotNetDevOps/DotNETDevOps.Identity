@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotNETDevOps.Identity.HeadlessAppHost": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --pause-on-error --port 44346 --useHttps --cert C:/dev/localhost.pfx --password 123456"
+    }
+  }
+}
