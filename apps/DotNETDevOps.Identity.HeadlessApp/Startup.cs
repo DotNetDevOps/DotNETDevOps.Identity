@@ -230,6 +230,7 @@ namespace DotNETDevOps.Identity.HeadlessApp
             services.AddSingleton<IValidationKeysStore, SigingKeyStore>();
             services.AddSingleton<ISigningCredentialStore, SigingKeyStore>();
             services.Configure<ManagedIdentityTokenProviderOptions>(configuration.GetSection("client"));
+            services.Configure<SigingKeyStoreOptions>(configuration);
 
             var authority = configuration.GetValue<string>("authority");
             var resourceApiEndpoint = configuration.GetValue<string>("resourceApiEndpoint");

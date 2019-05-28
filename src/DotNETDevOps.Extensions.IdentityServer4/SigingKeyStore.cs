@@ -2,6 +2,7 @@
 using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,11 @@ using System.Threading.Tasks;
 
 namespace DotNETDevOps.Extensions.IdentityServer4
 {
+    public class SigingKeyStoreOptions
+    {
+        public string KeyVaultUri { get; set; }
+        public string SecretName { get; set; } = "certificate";
+    }
     public class SigingKeyStore : ISigningCredentialStore, IValidationKeysStore
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
@@ -30,14 +36,15 @@ namespace DotNETDevOps.Extensions.IdentityServer4
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var old = (arg.Result ?? Array.Empty<KeyVaultCertificate>()).ToLookup(k => k.Identifier);
+                var options = scope.ServiceProvider.GetService<IOptions<SigingKeyStoreOptions>>();
 
                 var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 var tokenProvider = scope.ServiceProvider.GetRequiredService<ManagedIdentityTokenProvider>();
 
                 var client = new KeyVaultClient((string authority, string resource, string _) =>
                 tokenProvider.GetTokenForResourceAsync(authority, resource), scope.ServiceProvider.GetRequiredService<System.Net.Http.IHttpClientFactory>().CreateClient());
-
-                var certsVersions = await client.GetSecretVersionsAsync(configuration.GetValue<string>("keyVaultUri"), "certificate");
+                
+                var certsVersions = await client.GetSecretVersionsAsync(options.Value.KeyVaultUri, options.Value.SecretName);
                 var certsIds = certsVersions.Where(k => !old.Contains(k.Identifier.Identifier) && (k.Attributes?.Enabled ?? false)).ToArray();
                 var secrets = await Task.WhenAll(certsIds.Select(k => client.GetSecretAsync(k.Identifier.Identifier)));
 
