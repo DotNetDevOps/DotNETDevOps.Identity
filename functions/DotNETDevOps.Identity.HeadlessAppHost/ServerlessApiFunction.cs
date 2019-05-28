@@ -15,8 +15,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using DotNETDevOps.Identity.HeadlessApp;
 using DotNETDevOps.Extensions.IdentityServer4;
+using DotNETDevOps.Identity.HeadlessAppHost;
 
-[assembly: WebJobsStartup(typeof(AspNetCoreWebHostStartUp))]
+[assembly: WebJobsStartup(typeof(AspNetCoreWebHostStartUp<WebHostBuilderConfigurationBuilderExtension,Startup>))]
 [assembly: WebJobsStartup(typeof(DotNETDevOps.Identity.HeadlessAppHost.WebJobsStartup))]
 
 namespace DotNETDevOps.Identity.HeadlessAppHost
@@ -41,7 +42,7 @@ namespace DotNETDevOps.Identity.HeadlessAppHost
             builder.Services.Configure<ManagedIdentityTokenProviderOptions>(configuration.GetSection("values:client"));
         }
     }
-    public class WebHostBuilderConfigurationBuilderExtension : IWebHostBuilderExtension
+    public class WebHostBuilderConfigurationBuilderExtension : IWebHostBuilderExtension<Startup>
     {
         private readonly Microsoft.Extensions.Hosting.IHostingEnvironment hostingEnvironment;
 
@@ -94,22 +95,19 @@ namespace DotNETDevOps.Identity.HeadlessAppHost
     }
 
 
-    [WebHostBuilder(typeof(WebHostBuilderConfigurationBuilderExtension))]
+   
     public class ServerlessApiFunction
     {
 
 
-        private readonly IAspNetCoreRunner<ServerlessApiFunction> aspNetCoreRunner;
-
-        public ServerlessApiFunction(IAspNetCoreRunner<ServerlessApiFunction> aspNetCoreRunner)
-        {
-            this.aspNetCoreRunner = aspNetCoreRunner;
-        }
+        
 
         [FunctionName("AspNetCoreHost")]
         public Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, Route = "{*all}")]HttpRequest req, ExecutionContext executionContext, ILogger log)
-        => aspNetCoreRunner.RunAsync<Startup>(req, executionContext); 
+            [HttpTrigger(AuthorizationLevel.Anonymous, Route = "{*all}")]HttpRequest req, 
+            [AspNetCoreRunner(Startup = typeof(Startup))]  IAspNetCoreRunner aspNetCoreRunner,
+            ExecutionContext executionContext, ILogger log)
+        => aspNetCoreRunner.RunAsync(executionContext); 
     }
 }
 

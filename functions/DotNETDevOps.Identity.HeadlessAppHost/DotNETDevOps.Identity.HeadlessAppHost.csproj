@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="DotNETDevOps.Extensions.AzureFunctions" Version="1.0.0-pre-2019051703" />
+    <PackageReference Include="DotNETDevOps.Extensions.AzureFunctions" Version="1.0.0-pre-2019051912" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.28" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 

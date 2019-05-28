@@ -13,11 +13,6 @@ using System.Threading.Tasks;
 
 namespace DotNETDevOps.Extensions.IdentityServer4
 {
-    public class SigingKeyStoreOptions
-    {
-        public string KeyVaultUri { get; set; }
-        public string SecretName { get; set; } = "certificate";
-    }
     public class SigingKeyStore : ISigningCredentialStore, IValidationKeysStore
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
