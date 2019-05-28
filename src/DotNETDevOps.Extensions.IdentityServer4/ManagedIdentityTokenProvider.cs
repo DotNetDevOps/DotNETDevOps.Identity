@@ -65,12 +65,18 @@ namespace DotNETDevOps.Extensions.IdentityServer4
 
                 }
 
-                var a = new AzureServiceTokenProvider();
-
-                var accessToken = await a.GetAccessTokenAsync(resource);
-                if (accessToken != null)
+                try
                 {
-                    return new ExpirationMetadata<string> { Result = accessToken, ValidUntil = DateTimeOffset.UtcNow.AddMinutes(2) };
+                    var a = new AzureServiceTokenProvider();
+
+                    var accessToken = await a.GetAccessTokenAsync(resource, authority);
+                    if (accessToken != null)
+                    {
+                        return new ExpirationMetadata<string> { Result = accessToken, ValidUntil = DateTimeOffset.UtcNow.AddMinutes(2) };
+                    }
+                }catch(Exception ex)
+                {
+
                 }
 
 
